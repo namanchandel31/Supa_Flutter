@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:supabase_auth/backend/supabase/database/database.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -27,21 +28,6 @@ class LoginPageWidget extends StatefulWidget {
 
 class _LoginPageWidgetState extends State<LoginPageWidget> {
   late LoginPageModel _model;
-
-  GoogleSignIn _googleSignIn = GoogleSignIn(
-    // clientId:
-    //      500446238576
-    //     "436867458337-3luae9pmfdmui6n2bl42l4ake044o7ia.apps.googleusercontent.com",
-    signInOption: SignInOption.standard,
-    // serverClientId:
-    //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZ2FlcGJ4amFmdm5kcmJibWpsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY5NTc5ODM2MSwiZXhwIjoyMDExMzc0MzYxfQ.Iu0I8Hg1uvivhDf8lM5vx1THxkJ62X4evjalRZWTHzQ'
-    // scopes: [
-    //   // 'email',
-    //   // 'https://www.googleapis.com/auth/userinfo.profile'
-    //   // 'https://www.googleapis.com/auth/contacts.readonly',
-    // ],
-  );
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -198,93 +184,48 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                       0.0, 0.0, 0.0, 16.0),
                                   child: FFButtonWidget(
                                     onPressed: () async {
-                                      print('trying');
-                                      try {
-                                        // Obtain the auth details from the request
-                                        // final GoogleSignInAuthentication?
-                                        //     googleAuth =
-                                        //     await googleUser?.authentication;
-                                        await _googleSignIn.signOut();
-                                        await _googleSignIn.signIn();
+                                      final isAndroid = Platform.isAndroid;
+                                      var idToken = "";
+                                      var accessToken = "";
 
-                                        print("Display Name: " +
-                                            _googleSignIn
-                                                .currentUser!.displayName
-                                                .toString());
-                                        print("Email: " +
-                                            _googleSignIn.currentUser!.email
-                                                .toString());
-                                        print("Photo URL: " +
-                                            _googleSignIn.currentUser!.photoUrl
-                                                .toString());
-                                        print("ID: " +
-                                            _googleSignIn.currentUser!.id
-                                                .toString());
-                                        print("Server Auth Code: " +
-                                            _googleSignIn
-                                                .currentUser!.serverAuthCode
-                                                .toString());
-
-                                        debugPrint(
-                                          '_______________________',
+                                      if (isAndroid) {
+                                        GoogleSignIn _googleSignIn =
+                                            GoogleSignIn(
+                                          serverClientId:
+                                              "436867458337-p3kqv9ph6v3sni5sstgm3ro5m3qlke3v.apps.googleusercontent.com",
+                                          signInOption: SignInOption.standard,
+                                          scopes: ['email', 'profile'],
                                         );
-
-                                        // Generate a JSON Web Token
-// You can provide the payload as a key-value map or a string
-                                        final jwt = JWT(
-                                            // Payload
-                                            {
-                                              "azp":
-                                                  "517948199527-7vgu8ne6ivbihihto9f36lien6lt808a.apps.googleusercontent.com",
-                                              "aud":
-                                                  "517948199527-tk6hkjducbor85kcm9adsp9ck8q0pg0c.apps.googleusercontent.com",
-                                              "sub": "116573411944313041818",
-                                              "email":
-                                                  "merlinwilson31@gmail.com",
-                                              "email_verified": true,
-                                              "name": "Ani Lyrics TV",
-                                              "picture":
-                                                  "https://lh3.googleusercontent.com/a/ACg8ocK2j8ayBMQ4RzXR1i-5bxBLgYgik6aUBUZUR6L2BP4Lng=s96-c",
-                                              "given_name": "Ani",
-                                              "family_name": "Lyrics TV",
-                                              "locale": "en",
-                                              "iat": 1697020936,
-                                              "exp": 1697024536
-                                            },
-                                            issuer:
-                                                'https://accounts.google.com',
-                                            header: {
-                                              "alg": "RS256",
-                                              "kid":
-                                                  "c6263d09745b5032e57fa6e1d041b77a54066dbd",
-                                              "typ": "JWT"
-                                            });
-
-// Sign it (default with HS256 algorithm)
-                                        final token = jwt.sign(SecretKey(
-                                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZ2FlcGJ4amFmdm5kcmJibWpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU3OTgzNjEsImV4cCI6MjAxMTM3NDM2MX0.niAmLkNtPTR5kYp3xjqD_B27WZsh_5ty6hrC5JdIcYA'));
-
-                                        print('Signed token: $token\n');
-
-                                        print("Server Auth Code: " +
-                                            _googleSignIn
-                                                .currentUser!.serverAuthCode
-                                                .toString());
+                                        await _googleSignIn.signOut();
+                                        final result =
+                                            await _googleSignIn.signIn();
+                                        final authResult =
+                                            await result?.authentication;
+                                        idToken = authResult?.idToken ?? "";
+                                        accessToken =
+                                            authResult?.accessToken ?? "";
                                         _googleSignIn
-                                            .currentUser!.authentication
-                                            .then((value) {
-                                          print("idToken: " +
-                                              value.idToken.toString());
-                                          print("accessToken: " +
-                                              value.accessToken.toString());
-                                        });
+                                            .currentUser!.serverAuthCode
+                                            .toString();
+                                        // print("idToken: " + idToken);
+                                        // print("accessToken: " + accessToken);
+                                        debugPrint(
+                                          '__________________________',
+                                        );
+                                        // print("Server Auth Code: " +
+                                        //     _googleSignIn
+                                        //         .currentUser!.serverAuthCode
+                                        //         .toString());
 
-                                        await Supabase.instance.client.auth
-                                            .signInWithIdToken(
-                                                idToken: '', // idToken from _googleSignIn.currentUser!.authentication
-                                                provider: Provider.google);
-                                      } catch (error) {
-                                        print(error);
+                                        try {
+                                          await Supabase.instance.client.auth
+                                              .signInWithIdToken(
+                                                  idToken: idToken,
+                                                  accessToken: accessToken,
+                                                  provider: Provider.google);
+                                        } catch (error) {
+                                          print(error);
+                                        }
                                       }
                                     },
                                     text: 'Continue with Google',
