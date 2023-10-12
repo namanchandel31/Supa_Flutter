@@ -212,10 +212,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                                         debugPrint(
                                           '__________________________',
                                         );
-                                        // print("Server Auth Code: " +
-                                        //     _googleSignIn
-                                        //         .currentUser!.serverAuthCode
-                                        //         .toString());
+                                        print("Server Auth Code: " +
+                                            _googleSignIn
+                                                .currentUser!.serverAuthCode
+                                                .toString());
 
                                         try {
                                           await Supabase.instance.client.auth
